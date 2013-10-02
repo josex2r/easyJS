@@ -1,0 +1,127 @@
+.clear{clear:both;}
+.easyUploadAppended{
+	display:block;
+}
+span.easyUploadFile{
+	pointer-events: none;
+	clear:both;
+	color: #ccc;
+	font-size: 28px;
+	padding-top:15px;
+	width: 370px;
+	margin-left:220px;
+}
+.easyUploadNoStyle{
+	border:none !important;
+}
+
+.easyUploadContainer{
+	display:block;
+	height: auto !important;
+	min-height: 50px;
+	clear:both;
+	width: auto;
+	border: dashed #ddd;
+	text-align:center;
+}
+.easyUploadEnter{
+	border: solid red;
+}
+.easyUploadFile{
+	pointer-events: none;
+	width:390px;
+	padding:8px;
+	padding-left:18px;
+	float:left;
+	height:25px;
+	display:block;
+}
+.easyUploadFile div{
+	text-align:left;
+	float:left;
+}
+
+.easyUploadSize{
+	display:none;
+	width: 40px;
+}
+
+.easyUploadName{
+	width:200px;
+	height:25px;
+	padding-left:15px;
+	pointer-events: auto;
+}
+
+.easyUploadRemove{
+	pointer-events: auto;
+	cursor:pointer;
+	margin-left:5px;
+	width:24px;
+	height:16px;
+	background:url('../img/easyUpload/remove.gif');
+}
+.easyUploadCopy{
+	pointer-events: auto;
+	cursor:pointer;
+	margin-left:15px;
+	width:16px;
+	height:16px;
+	background:url('../img/easyUpload/copy.gif');
+}
+
+.easyUploadStatePending{
+	width:16px;
+	height:16px;
+	background:url('../img/easyUpload/loading.gif');
+}
+.easyUploadStateRejected{
+	width:16px;
+	height:16px;
+	background:url('../img/easyUpload/invalid.gif');
+}
+.easyUploadStateResolved{
+	width:16px;
+	height:16px;
+	background:url('../img/easyUpload/valid.gif');
+}
+
+
+/* 24px de ancho cada icono de 24x24 y 5px de separanción entre cada uno */
+.easyUploadIcon{
+	width:24px;
+	height:25px;
+	background:url('../img/easyUpload/mime_24x25.png');
+}
+.easyUploadImage{
+	background-position-x:0px;
+	background-position-y:-30px;
+}
+.easyUploadPdf{
+	background-position-x:0px;
+	background-position-y:0px;
+}
+.easyUploadDoc{
+	background-position-x:0px;
+	background-position-y:-120px;
+}
+.easyUploadZip{
+	background-position-x:0px;
+	background-position-y:-60px;
+}
+.easyUploadMusic{
+	background-position-x:0px;
+	background-position-y:-90px;
+}
+.easyUploadName, .easyUploadSize{
+	margin-right:10px;
+}
+
+
+.more-text-collapse {
+    display:inline-block;
+    max-width:400px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
