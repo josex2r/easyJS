@@ -18,7 +18,7 @@ span.easyUploadFile{
 .easyUploadContainer{
 	display:block;
 	height: auto !important;
-	min-height: 50px;
+	min-height: 60px;
 	clear:both;
 	width: auto;
 	border: dashed #ddd;

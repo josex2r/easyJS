@@ -41,7 +41,7 @@ $.easyUploadBeta = function(params) {
 		removeCallback 	: typeof params.removeCallback 	=== 'function' 	? params.removeCallback : function(){return false;},	//Function to be executed when remove a file
 		//Góbalo params
 		isAdmin 		: typeof params.isAdmin			=== 'boolean' 	? params.isAdmin 		: false,			//Only if use $.easyAjax
-		baseUrl 		: typeof base_url				=== "undefined" ? typeof params.baseUrl	=== 'string' ? params.baseUrl : window.location.href : base_url,			//Only if use $.easyAjax
+		baseUrl 		: typeof base_url				!== "string"	? typeof params.baseUrl	=== 'string' ? params.baseUrl : window.location.href : base_url,			//Only if use $.easyAjax
 	};
 	//Returns object
 	var easyUploadObj = function(settings) {
@@ -52,7 +52,7 @@ $.easyUploadBeta = function(params) {
 		self.settings = $.extend(self.settings, settings);
 		//Paths depends of the location
 			self.settings.relPath	= self.settings.isAdmin ? "../../"+self.settings.folder : "../"+self.settings.folder; //Exit to root directory
-			self.settings.absPath	= self.settings.base_url+self.settings.folder;
+			self.settings.absPath	= self.settings.baseUrl+self.settings.folder;
 		if(self.settings.debug){
 			console.log("Parametters:");
 			console.log(self.settings);
@@ -184,13 +184,16 @@ $.easyUploadBeta = function(params) {
 						_checkFilesLoaded();
 			});
 			this.reject=function(){
-				setTimeout(function(){obj.deferred.reject()},_updateTime);
+				setTimeout(function(){obj.deferred.reject();},_updateTime);
 			};
 			this.resolve=function(){
-				setTimeout(function(){obj.deferred.resolve()},_updateTime);
+				setTimeout(function(){obj.deferred.resolve();},_updateTime);
 			};
 			this.setStatus=function(state){
-				obj.state=function(){return state};
+				obj.state=function(){
+					return state;
+				};
+				obj.draw();
 			};
 			this.initStatus=function(){
 				if(_checkFile(obj))
@@ -208,6 +211,9 @@ $.easyUploadBeta = function(params) {
 			};
 			this.draw	= function(){
 				if(self.settings.debug) console.log("Drawing the file: "+obj.index);
+				if(self.files.length>0)
+					_$filesContainer.find("span.easyUploadFile").remove();
+				_$filesContainer.find(".clear").remove();
 				var status=obj.state()=="pending"?"easyUploadStatePending":obj.state()=="rejected"?"easyUploadStateRejected":obj.state()=="resolved"?"easyUploadStateResolved":obj.state()=="uploading"?"easyUploadStateUploading":obj.state()=="failed"?"easyUploadStateFailed":"easyUploadStateUploaded";
 				var $newFile=$("<div class='easyUploadFile'>"+
 									"<div class='easyUploadIcon "+_getMimeClass(obj.mime)+"'></div>"+
@@ -216,7 +222,7 @@ $.easyUploadBeta = function(params) {
 									"<div class='easyUploadStatus "+status+"'></div>"+
 									"<div class='easyUploadCopy'></div>"+
 									"<div class='easyUploadRemove'></div>"+
-								"</div");
+								"</div>");
 				if(obj.$file=="NO-FILE")
 					obj.$file=$newFile;
 				else
@@ -240,19 +246,17 @@ $.easyUploadBeta = function(params) {
 				data.append("maxHeight", self.settings.maxHeight);
 				data.append("maxSize", self.settings.maxSize);
 				if(obj.state()==="resolved"){
-					if(self.settings.debug) console.log("Prepairing upload file:"+obj.index);
-					data.append("easyUploadFile_"+obj.index, obj.file);
-					obj.setStatus("uploading");
+					var data=_getUploadData(obj.index);
 					if(typeof $.easyAjax!=="undefined"){
-						if(self.settings.debug) console.log("Uploading file:"+obj.index+" via jQuery easyAjax");
+						if(self.settings.debug) console.log("Uploading file"+obj.index+": via jQuery easyAjax");
 						$.easyAjax({
 							method : "POST",
 							//dataType:"multipart/form-data",
-							file : "easyUpload",
+							file : "easyUploadBeta",
 							data : data,
 							success : _handleResponseFile,
-							error:function(){obj.setStatus("failed")},
-							isAdmin : false,
+							error:function(){alert("Ther was an error while uploading.");},
+							isAdmin : self.settings.isAdmin,
 							isFile : true
 						}).call();
 					}else{
@@ -263,12 +267,12 @@ $.easyUploadBeta = function(params) {
 							file : self.settings.absPath+"easyUpload",
 							data : data,
 							success : _handleResponseFile,
-							error:function(){obj.setStatus("failed")}
+							error:function(){alert("Ther was an error while uploading.");}
 						});
 					}
 				}else{
 					obj.reject();
-					_drawFile(index);
+					obj.draw();
 				}
 			};
 		};
@@ -294,6 +298,9 @@ $.easyUploadBeta = function(params) {
 			_$filesContainer.html("");
 			var i = self.files.length;
 			while(i--) self.files[i].draw();
+			if(self.files.length>0)
+				$selector.find(".easyUploadFile").remove();
+			_$filesContainer.append("<div class='clear'></div>");
 		};
 		
 		var _removeFile=function(index){
@@ -323,12 +330,88 @@ $.easyUploadBeta = function(params) {
 		};
 		
 		var _checkFilesLoaded=function(){
-			if(_filesReady==self.files.length)
-				console.log("All files are ready to upload");
-			else
-				console.log("Waiting for files...");
+			if(_filesReady==self.files.length){
+				if(self.settings.debug) console.log("All files are ready to upload");
+				if(self.settings.autoUpload && !self.settings.uploadSingle)
+					_uploadFiles();
+			}else
+				if(self.settings.debug) console.log("Waiting for files...");
 		};
-
+		
+		var _handleResponseFiles = function(payload){
+			console.log(payload);
+		};
+		
+		var _getUploadData=function(index){
+			var i=self.files.length,
+				maxFiles=i,
+				maxTypes=self.settings.allowedTypes.length,
+				data=new FormData();
+			data.append("maxFiles", maxFiles);
+			data.append("maxTypes", maxTypes);
+			data.append("relPath", self.settings.relPath);
+			data.append("absPath", self.settings.absPath);
+			data.append("maxWidth", self.settings.maxWidth);
+			data.append("maxHeight", self.settings.maxHeight);
+			data.append("maxSize", self.settings.maxSize);
+			for(var j=0;j<maxTypes;j++)
+				data.append("allowedTypes_"+j,self.settings.allowedTypes[j]);
+			if(typeof index==="undefined")
+				while(i--)
+					if(self.files[i].state()==="resolved"){
+						data.append("easyUploadFile_"+self.files[i].index, self.files[i].file);
+						self.files[i].setStatus("uploading");
+					}else{
+						self.files[i].reject();
+						self.files[i].draw();
+					}
+			else
+				if(self.files[index].state()==="resolved"){
+					data.append("easyUploadFile_"+self.files[index].index, self.files[index].file);
+					self.files[index].setStatus("uploading");
+				}else{
+					data=false;
+					self.files[i].reject();
+					self.files[i].draw();
+				}
+			return data;
+		};
+		
+		var _uploadFiles=function(){
+			var i=self.files.length,
+				max=i;
+			var data=_getUploadData();
+			if(typeof $.easyAjax!=="undefined"){
+				if(self.settings.debug) console.log("Uploading files: via jQuery easyAjax");
+				$.easyAjax({
+					method : "POST",
+					//dataType:"multipart/form-data",
+					file : "easyUploadBeta",
+					data : data,
+					success : _handleResponseFiles,
+					error:function(){alert("Ther was an error while uploading.");},
+					isAdmin : self.settings.isAdmin,
+					isFile : true
+				}).call();
+			}else{
+				if(self.settings.debug) console.log("Uploading file:"+self.files[i].index+" via jQuery ajax");
+				$.ajax({
+					method : "POST",
+					//dataType:"multipart/form-data",
+					file : self.settings.absPath+"easyUpload",
+					data : data,
+					success : _handleResponseFiles,
+					error:function(){alert("There was an error while uploading.");}
+				});
+			}
+		};
+		
+		/****************************************/
+		/*			 Public methods				*/
+		/****************************************/
+		self.upload=function(){
+			_uploadFiles();
+		};
 	};
 	return new easyUploadObj(settings);
 };
