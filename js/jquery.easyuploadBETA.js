@@ -26,10 +26,10 @@ $.easyUploadBeta = function(params) {
 		drawFiles 		: typeof params.drawFiles 		=== 'boolean' 	? params.drawFiles 		: true,				//Automatically draw files when added
 		containerId		: typeof params.filesContainer	=== 'string' 	? params.filesContainer	: "NO-CONTAINER",
 		//Upload params
-		autoUpload 		: typeof params.autoUpload		=== 'boolean' 	? params.autoUpload 	: true,			//Auto-upload if append new files
+		autoUpload 		: typeof params.autoUpload		=== 'boolean' 	? params.autoUpload 	: true,				//Auto-upload if append new files
 		multiple	 	: typeof params.multiple		=== 'boolean' 	? params.multiple	 	: true,				//Enable multiple upload
 		folder 			: typeof params.folder 			=== 'string' 	? params.folder 		: "files/imgs/",	//Folder where files are going to be uploaded
-		uploadSingle	: typeof params.uploadSingle	=== 'boolean' 	? params.uploadSingle 	: false,				//Upload one file on each ajax call
+		uploadSingle	: typeof params.uploadSingle	=== 'boolean' 	? params.uploadSingle 	: false,			//Upload one file on each ajax call
 		//File params
 		maxWidth 		: typeof params.maxWidth		=== 'number' 	? params.maxWidth 		: 200,				//If files are images, set width
 		maxHeight 		: typeof params.maxHeight 		=== 'boolean' 	? params.maxHeight 		: "",				//If files are images, set height
@@ -163,9 +163,7 @@ $.easyUploadBeta = function(params) {
 			this.$file		= "NO-FILE";
 			this.uploaded	= false;
 			this.index		= index || self.files.length;
-			this.url		= function(){
-				return self.settings.absPath+obj.name;
-			};
+			this.url		= "";
 			if(self.settings.debug){
 				console.log("Instancing new File:");
 				console.log(obj);
@@ -177,12 +175,14 @@ $.easyUploadBeta = function(params) {
 			this.promise.always(function(){ //Esta función se ejecutará siempre, falle o resuelva
 				obj.draw();
 				_filesReady++;
-				if(obj.state()=="resolved")
-					if(self.settings.uploadSingle && self.settings.autoUpload)
-						obj.upload();
-					else
-						_checkFilesLoaded();
+				if(self.settings.uploadSingle && self.settings.autoUpload && obj.state()==="resolved")
+					obj.upload();
+				else
+					_checkFilesLoaded();
 			});
+			this.updateIndex=function(index){
+				obj.index=index;
+			};
 			this.reject=function(){
 				setTimeout(function(){obj.deferred.reject();},_updateTime);
 			};
@@ -229,9 +229,12 @@ $.easyUploadBeta = function(params) {
 					obj.$file.html($newFile.find("div"));
 				_$filesContainer.append(obj.$file);
 				//Bind mouse events
-				obj.$file.find("div.easyUploadCopy").unbind().click(function(){
-					window.prompt("Presione CRTL+C para copiar el texto",self.filesStatus[index].uploadedURL);
-				});
+				if(obj.uploaded)
+					obj.$file.find("div.easyUploadCopy").unbind().click(function(){
+						window.prompt("Presione CRTL+C para copiar el texto:",obj.url);
+					}).parent().find("div.easyUploadName").html("<a target='_blank' href='"+obj.url+"'>"+obj.name+"</a>");
+				else
+					obj.$file.find("div.easyUploadCopy").hide();
 				obj.$file.find("div.easyUploadRemove").unbind().click(function(){
 					obj.remove();
 			   });
@@ -289,25 +292,36 @@ $.easyUploadBeta = function(params) {
 			};
 			reader.onload = function(evt) {
 				if(self.settings.debug) console.log("Resolved file: "+file.index+" -> Read completed");
+				console.log(_filesReady);
 				file.resolve();
 			};
 			reader.readAsBinaryString(file.file);
 		};
 
 		var _drawFiles = function(){
+			_updateFileIndex();
 			_$filesContainer.html("");
 			var i = self.files.length;
-			while(i--) self.files[i].draw();
+			while(i--)
+				self.files[i].draw();
 			if(self.files.length>0)
-				$selector.find(".easyUploadFile").remove();
+				_$selector.find(".easyUploadFile").remove();
 			_$filesContainer.append("<div class='clear'></div>");
 		};
 		
+		var _updateFileIndex = function(){
+			_$filesContainer.html("");
+			var i = self.files.length;
+			while(i--)
+				self.files[i].updateIndex(i);
+		};
+		
 		var _removeFile=function(index){
+			_filesReady--;
 			if(index<self.files.length){
 				self.settings.removeCallback(index,self.files[index].name);
 				self.files.splice(index,1);
-				_drawFiles();
+				//_drawFiles();
 				return true;
 			}else return false;
 		};
@@ -338,8 +352,40 @@ $.easyUploadBeta = function(params) {
 				if(self.settings.debug) console.log("Waiting for files...");
 		};
 		
+		var _handleResponseFile = function(payload){
+			if(self.settings.debug)
+				console.log(payload);
+			if(typeof payload==="string")
+				try{
+					payload=JSON.parse(payload);
+				}catch(e){
+					if(self.settings.debug)
+						console.log("Invalid JSON String");
+				}
+			if(payload.result===0){
+				self.files[payload.index].uploaded=true;
+				self.files[payload.index].setStatus("uploaded");
+				self.files[payload.index].url=payload.absPath;
+			}else{
+				self.files[payload.index].uploaded=false;
+				self.files[payload.index].setStatus("failed");
+				self.files[payload.index].url="";
+			}
+			self.files[payload.index].draw();
+		};
+		
 		var _handleResponseFiles = function(payload){
-			console.log(payload);
+			if(self.settings.debug)
+				console.log(payload);
+			if(typeof payload==="string")
+				try{
+					payload=JSON.parse(payload);
+				}catch(e){
+					if(self.settings.debug)
+						console.log("Invalid JSON String");
+				}
+			for(var i=0;i<payload.files.length;i++)
+				_handleResponseFile(payload.files[i]);
 		};
 		
 		var _getUploadData=function(index){
@@ -401,7 +447,7 @@ $.easyUploadBeta = function(params) {
 					file : self.settings.absPath+"easyUpload",
 					data : data,
 					success : _handleResponseFiles,
-					error:function(){alert("There was an error while uploading.");}
+					error:function(){alert("Ther was an error while uploading.");}
 				});
 			}
 		};
