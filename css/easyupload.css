@@ -11,29 +11,46 @@ span.easyUploadFile{
 	width: 370px;
 	margin-left:220px;
 }
+
 .easyUploadNoStyle{
 	border:none !important;
 }
-
+.easyUploadCutText{
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
 .easyUploadContainer{
 	display:block;
 	height: auto !important;
-	min-height: 60px;
+	min-height: 50px;
 	clear:both;
 	width: auto;
 	border: dashed #ddd;
 	text-align:center;
 }
+.easyUploadContainer:hover{
+	background:#eee;
+	cursor:pointer;
+}
 .easyUploadEnter{
 	border: solid red;
 }
 .easyUploadFile{
-	pointer-events: none;
+	/*pointer-events: none;*/
 	width:390px;
 	padding:8px;
 	padding-left:18px;
 	float:left;
 	height:25px;
+	display:block;
+}.easyUploadFile.easyUploadPretty{
+	/*pointer-events: none;*/
+	width:220px;
+	height: 160px;
+	padding:8px;
+	padding-left:18px;
+	float:left;
 	display:block;
 }
 .easyUploadFile div{
@@ -50,26 +67,69 @@ span.easyUploadFile{
 	width:200px;
 	height:25px;
 	padding-left:15px;
-	pointer-events: auto;
+	/*pointer-events: auto;*/
 }
-
+.easyUploadName.easyUploadPretty{
+	width:200px;
+	height:25px;
+	padding-left:15px;
+	/*pointer-events: auto;*/
+}
 .easyUploadRemove{
-	pointer-events: auto;
+	/*pointer-events: auto;*/
 	cursor:pointer;
 	margin-left:5px;
 	width:24px;
 	height:16px;
-	background:url('../img/easyUpload/remove.gif');
+	background-repeat:no-repeat !important;
+	background:url('../img/easyUpload/remove_off_16.png');
+}
+.easyUploadRemove:hover{
+	cursor:pointer;
+	background:url('../img/easyUpload/remove_on_16.png');
+}
+.easyUploadRemove.easyUploadPretty{
+	width:20px;
+	height:20px;
+	background:url('../img/easyUpload/remove_off.png');
+}
+.easyUploadRemove.easyUploadPretty:hover{
+	cursor:pointer;
+	background:url('../img/easyUpload/remove_on.png');
 }
 .easyUploadCopy{
-	pointer-events: auto;
+	/*pointer-events: auto;*/
 	cursor:pointer;
 	margin-left:15px;
 	width:16px;
 	height:16px;
 	background:url('../img/easyUpload/copy.gif');
 }
-
+.easyUploadCopy{
+	/*pointer-events: auto;*/
+	cursor:pointer;
+	margin-left:10px;
+	width:16px;
+	height:16px;
+	background-repeat:no-repeat !important;
+	background:url('../img/easyUpload/copy_off_16.png');
+}
+.easyUploadCopy:hover{
+	cursor:pointer;
+	background:url('../img/easyUpload/copy_on_16.png');
+}
+.easyUploadCopy.easyUploadPretty{
+	width:20px;
+	height:20px;
+	background:url('../img/easyUpload/copy_off.png');
+}
+.easyUploadCopy.easyUploadPretty:hover{
+	cursor:pointer;
+	background:url('../img/easyUpload/copy_on.png');
+}
+.easyUploadCopy.easyUploadPretty{
+	margin-left: 155px;
+}
 .easyUploadStatePending{
 	width:16px;
 	height:16px;
@@ -85,7 +145,16 @@ span.easyUploadFile{
 	height:16px;
 	background:url('../img/easyUpload/valid.gif');
 }
-
+.easyUploadStateUploading{
+	width:16px;
+	height:16px;
+	background:url('../img/easyUpload/uploading.gif');
+}
+.easyUploadStateUploaded{
+	width:16px;
+	height:16px;
+	background:url('../img/easyUpload/valid.gif');
+}
 
 /* 24px de ancho cada icono de 24x24 y 5px de separanción entre cada uno */
 .easyUploadIcon{
@@ -118,10 +187,20 @@ span.easyUploadFile{
 }
 
 
-.more-text-collapse {
-    display:inline-block;
-    max-width:400px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
+.easyUploadImg.easyUploadPretty{
+	width:200px;
+	height:10px;
+}
+.easyUploadImg.easyUploadPretty img{
+	border:5px solid #bbb;
+	max-height: 150px;
+}
+.easyUploadImg.easyUploadPretty.easyUploadStateUploaded, .easyUploadImg.easyUploadPretty.easyUploadStateResolved{
+	/*width:125px;*/
+	
+	background:none;
+}
+.easyUploadImg.easyUploadPretty.easyUploadStateUploading, .easyUploadImg.easyUploadPretty.easyUploadStatePending{
+	background:none;
+	opacity:0.5;
 }
