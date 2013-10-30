@@ -9,6 +9,8 @@ $allowedTypes	= array("image/gif", "image/jpeg", "image/jpg", "image/png", "appl
 $maxFiles=$dev->req->getVar("maxFiles");
 $relPath=$dev->req->getVar("relPath");
 $absPath=$dev->req->getVar("absPath");
+if(preg_match("/^..\/..\/.+$/", $relPath))
+	$absPath=preg_replace("/admin\//", "", $absPath);
 $maxWidth=$dev->req->getVar("maxWidth");
 $maxHeight=$dev->req->getVar("maxHeight");
 $maxSize=$dev->req->getVar("maxSize");

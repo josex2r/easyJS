@@ -59,7 +59,7 @@ $.easyUploadBeta = function(params) {
 		/****************************************/
 		self.settings = $.extend(self.settings, settings);
 		//Paths depends of the location
-			self.settings.relPath	= self.settings.isAdmin ? "../../"+self.settings.folder : "../"+self.settings.folder; //Exit to root directory
+			self.settings.relPath	= !self.settings.isAdmin ? "../../"+self.settings.folder : "../"+self.settings.folder; //Exit to root directory
 			self.settings.absPath	= self.settings.baseUrl+self.settings.folder;
 		if(self.settings.debug){
 			console.log("Parametters:");
@@ -190,8 +190,10 @@ $.easyUploadBeta = function(params) {
 			this.uploaded	= this.file.uploaded 	|| false;
 			this.index		= this.file.index 		|| self.files.length;
 			this.url		= this.file.url 		|| "";
+			this.relPath	= this.file.relPath 	|| "";
+			this.uploadedName=this.file.uploadedName|| "";
 			this.size		= this.file.size 		|| 0;
-			this.prettyImg	= "NO-SRC";
+			this.prettyImg	= this.file.prettyImg	|| "NO-SRC";
 			//Status
 			this.deferred	= $.Deferred();
 			this.promise	= this.deferred.promise();
@@ -447,14 +449,18 @@ $.easyUploadBeta = function(params) {
 				self.files[payload.index].uploaded=true;
 				self.files[payload.index].setStatus("uploaded");
 				self.files[payload.index].url=payload.absPath;
+				self.files[payload.index].relPath=payload.relPath;
+				self.files[payload.index].uploadedName=payload.name;
 			}else{
 				self.files[payload.index].uploaded=false;
 				self.files[payload.index].setStatus("failed");
 				self.files[payload.index].url="";
+				self.files[payload.index].relPath="";
+				self.files[payload.index].uploadedName="";
 			}
 			self.files[payload.index].draw();
 			if(typeof self.settings.onUpload==="function")
-				onUpload(self.files[payload.index],payload.result);
+				self.settings.onUpload(self.files[payload.index],payload.result);
 		};
 		
 		var _handleResponseFiles = function(payload){
@@ -553,7 +559,8 @@ $.easyUploadBeta = function(params) {
 				name:name,
 				mime:mime,
 				uploaded:true,
-				url:url
+				url:url,
+				prettyImg:url
 			});
 			_filesReady++;
 			self.files.push(file);
