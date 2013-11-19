@@ -13,7 +13,9 @@ $.easyAjax = function( params ) {
 		file		: typeof params.file		===	'string'	?	params.file				:	false,	//RIA file
 		method		: typeof params.method		===	'string'	?	params.method			:	"POST",	//send method
 		dataType	: typeof params.dataType	===	'string' 	?	params.dataType			:	"text",	//payload type
+		interval	: typeof params.interval	===	'number' 	?	params.interval			:	0,		//interval recall time
 		timeout		: typeof params.timeout		===	'number' 	?	params.timeout			:	20000,	//max timeout
+		retry		: typeof params.retry		===	'number' 	?	params.retry			:	0,		//max tries
 		data		: typeof params.data		===	'object' 	?	params.data				:	{},		//params
 		error		: typeof params.error		===	'function' 	?	params.error			:	false,	//error callback
 		success		: typeof params.success		===	'function' 	?	params.success			:	false,	//success callback
@@ -38,59 +40,69 @@ $.easyAjax = function( params ) {
 		/***********************************/
 		/*   Initialize default functions  */
 		/***********************************/
-		self.defaultError=function(xhr, textStatus, errorThrown){
-			if( typeof self.tempSettings.error === 'function' )
-				self.tempSettings.error(xhr);
-			else{
-				if(self.tempSettings.enableLog) console.log("Error AJAX");
-				if (textStatus == 'timeout') {
-		           	alert('The conection is taking so much time. Sorry.');
-		       	}
-				if(xhr.status==0){
-					alert('You are offline!!\n Please Check Your Network.');
-					//self.call(self.tempSettings);
-				}else if(xhr.status==404){
-					alert('Requested URL not found.');
-				}else if(xhr.status==500){
-					alert('Internel Server Error.');
-				} 
-				if(textStatus=='parsererror'){
-					alert('Error.\nParsing Request failed.');
-				}else if(textStatus=='timeout'){
-					alert('Request Time out.');
-				}else {
-					alert('Unknow Error.\n'+xhr.responseText);
+		var _defaultError=function(payload, textStatus, errorThrown){
+			if(_tempSettings.retry>0){
+				_tempSettings.retry--;
+				self.recall();
+			}else{
+				if(_tempSettings.debug)
+					console.log("Error AJAX");
+				if( typeof _tempSettings.error === 'function' )
+					_tempSettings.error(payload, textStatus, errorThrown);
+				else{
+					if(xhr.status==0){
+						alert('You are offline!! Please Check Your Network.');
+					}else if(xhr.status==404){
+						alert('Requested URL not found.');
+					}else if(xhr.status==500){
+						alert('Internel Server Error.');
+					} 
+					if(textStatus=='parsererror'){
+						alert('Error. Parsing Request failed.');
+					}else if(textStatus=='timeout'){
+						alert('The conection is taking so much time. Sorry.');
+					}else{
+						alert('Unknow Error. '+xhr.responseText);
+					}
 				}
 			}
 		};
-		self.defaultSuccess=function(data){
-			if( typeof self.tempSettings.success === 'function' )
-				self.tempSettings.success(data);
+		var _defaultSuccess=function(payload){
+			if(_tempSettings.debug)
+				console.log("Success AJAX");
+			if( typeof _tempSettings.success === 'function' )
+				_tempSettings.success(payload);
 			else
-				if(data.match(/\<title\>404\sNot\sFound\<\/title\>/)) alert("The page was not found");
-				if(self.tempSettings.enableLog) console.log("Success AJAX");
+				if(data.match(/\<title\>404\sNot\sFound\<\/title\>/))
+					alert("The page was not found");
 		};
-		self.defaultComplete=function(data){
-			if( typeof self.tempSettings.complete === 'function' )
-				self.tempSettings.complete(data);
-			else
-	       		if(self.tempSettings.enableLog) console.log("Complete AJAX");
-	       	self.isRunning=false;
+		var _defaultComplete=function(payload){
+			if(_tempSettings.retry===0){
+				if(_tempSettings.debug)
+					console.log("Complete AJAX");
+				_isRunning=false;
+				if( typeof _tempSettings.complete === 'function' )
+					_tempSettings.complete(payload);
+				if(_tempSettings.interval>0)
+					setTimeout(self.call,_tempSettings.interval);
+			}
 		};
 		/***********************************/
 		/*     Extend default settings     */
 		/***********************************/
 		self.settings=$.extend(self.settings, settings);
-		if(self.settings.enableLog) console.log("Individual settings are now setted");
+		if(self.settings.debug)
+			console.log("Params are ready to rock");
 		/***********************************/
 		/*     Initialize running vars     */
 		/***********************************/
-		self.tempSettings={};
-		self.isRunning	=	false;
-		self.xhr		=	false;
+		_tempSettings={};
+		_isRunning	=	false;
+		_xhr		=	false;
 		
 		self.stop=function(){
-			if (self.isRunning ) self.xhr.abort();
+			if (_isRunning)
+				_xhr.abort();
 			return self;
 		};
 		
@@ -98,104 +110,53 @@ $.easyAjax = function( params ) {
 			/***********************************/
 			/* 	     Initialize temp vars      */
 			/***********************************/
-			$.extend(self.tempSettings, self.settings, self.tempSettings, tempSettings);
+			$.extend(_tempSettings, self.settings, _tempSettings, tempSettings);
 			
-			if(self.tempSettings.enableLog) console.log("Temp settings are now setted");
-			if(self.tempSettings.enableLog) console.log("Building AJAX");
-			//self.tempSettings.successCallback=self.defaultSuccess(self.tempSettings.success);
-			//self.tempSettings.error=self.defaultError;
-			//self.tempSettings.complete=self.defaultComplete;
-			self.isRunning=true;
+			if(_tempSettings.debug)
+				console.log("Temp settings are ready to rock");
+			if(_tempSettings.debug)
+				console.log("Building AJAX");
+			_isRunning=true;
 
-			var token="nA";
-			if(self.tempSettings.useToken==true){
-				token=$('#OLIF_TOKEN').val();
-			}
-			if(self.tempSettings.isAdmin)
-				if(self.tempSettings.isRia)
-					var finalURL=ria_url+"li/"+self.tempSettings.file+"/"+token;
+			var token=_tempSettings.useToken?$('#OLIF_TOKEN').val():"nA";
+			if(_tempSettings.isAdmin)
+				if(_tempSettings.isRia)
+					var finalURL=ria_url+"li/"+_tempSettings.file+"/"+token;
 				else
-					if(self.tempSettings.showContent)
-						var finalURL=base_url+self.tempSettings.file+"&action=noContent";
-					else
-						var finalURL=base_url+self.tempSettings.file;
+					var finalURL=base_url+_tempSettings.file+_tempSettings.action;
 			else 
-				if(self.tempSettings.isRia)
-					var finalURL=ria_url+"lo/"+self.tempSettings.file+"/"+token;
+				if(_tempSettings.isRia)
+					var finalURL=ria_url+"lo/"+_tempSettings.file+"/"+token;
 				else
-					if(self.tempSettings.showContent)
-						var finalURL=base_url+self.tempSettings.file+"&action=noContent";
-					else
-						var finalURL=base_url+self.tempSettings.file;
-				
+					var finalURL=base_url+_tempSettings.file+_tempSettings.action;
 			//PREVENT CACHE
-			self.tempSettings.data.date=$.now();
-			//-------------
-				//alert(self.contentType+" - "+self.processData);
+				_tempSettings.data.cacheControl=$.now();
 			var callSettings={
-	           url			: finalURL,
-	           type			: self.tempSettings.method,
-	           dataType		: self.tempSettings.dataType,
-	           data			: self.tempSettings.data,
-	           timeout		: self.tempSettings.timeout,
-	           //Always use default functions
-	           error		: self.defaultError,  
-	           success		: self.defaultSuccess,
-	           complete		: self.defaultComplete
-	       };
-	       if(self.tempSettings.isFile){
+				url			: finalURL,
+	           	type		: _tempSettings.method,
+	           	dataType	: _tempSettings.dataType,
+	           	data		: _tempSettings.data,
+	           	timeout		: _tempSettings.timeout,
+	           	//Always use default functions
+	           	error		: _defaultError,
+	           	success		: _defaultSuccess,
+           		complete	: _defaultComplete
+			};
+			if(_tempSettings.isFile){
 				callSettings.cache		= false;
 			   	callSettings.contentType= false;
 			   	callSettings.processData= false;
-	       }
-			self.xhr=$.ajax(callSettings);
-		        
+			}
+			_xhr=$.ajax(callSettings);
 			return self;
 		};
-		//Repear last AJAX call
+		
 		self.recall=function(){
-			var token="nA";
-			if(self.tempSettings.useToken==true){
-				token=$('#OLIF_TOKEN').val();
-			}
-			if(self.tempSettings.isAdmin)
-				if(self.tempSettings.isRia)
-					var finalURL=ria_url+"li/"+self.tempSettings.file+"/"+token;
-				else
-					if(self.tempSettings.showContent)
-						var finalURL=base_url+self.tempSettings.file+"&action=noContent";
-					else
-						var finalURL=base_url+self.tempSettings.file;
-			else 
-				if(self.tempSettings.isRia)
-					var finalURL=ria_url+"lo/"+self.tempSettings.file+"/"+token;
-				else
-					if(self.tempSettings.showContent)
-						var finalURL=base_url+self.tempSettings.file+"&action=noContent";
-					else
-						var finalURL=base_url+self.tempSettings.file;
-			self.isRunning=true;
-			self.xhr=$.ajax({
-	           url			: finalURL,
-	           type			: self.tempSettings.method,
-	           dataType		: self.tempSettings.dataType,
-	           data			: self.tempSettings.data,
-	           timeout		: self.tempSettings.timeout,
-	           retryLimit	: self.tempSettings.retryLimit,
-	           //Always use default functions
-	           error		: self.defaultError,  
-	           success		: self.defaultSuccess,
-	           complete		: self.defaultComplete,
-	           cache		: self.cache,
-			   contentType	: self.contentType,
-			   processData	: self.processData
-	        });
-		        
-			return self;
+			return self.call(_tempSettings);
 		};
 		
 	};
 	return new easyAjaxObj(settings);
-}; //End $.easyAjax()
+};
 	
 }( jQuery ));
