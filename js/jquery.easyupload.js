@@ -335,7 +335,7 @@ $.easyUpload = function(params) {
 							error:function(){alert("Ther was an error while uploading.");},
 							isAdmin : self.settings.isAdmin,
 							isFile : true
-						}).call();
+						});
 					}else{
 						if(self.settings.debug) console.log("Uploading file:"+obj.index+" via jQuery ajax");
 						$.ajax({
@@ -535,7 +535,7 @@ $.easyUpload = function(params) {
 					error:function(){alert("Ther was an error while uploading.");},
 					isAdmin : self.settings.isAdmin,
 					isFile : true
-				}).call();
+				});
 			}else{
 				if(self.settings.debug) console.log("Uploading file:"+self.files[i].index+" via jQuery ajax");
 				$.ajax({
@@ -597,12 +597,3 @@ if (!Array.prototype.indexOf) {
 		return -1;
 	};
 }
-
-$.fn.textWidth = function(){
-	var text	= $(this).html();
-	var html	= '<span>'+text+'</span>';
-	$(this).html(text);
-	var width	= $(this).find('span:first').width();
-	$(this).html(text);
-  	return width;
-};

@@ -1,14 +1,95 @@
 
 <html>
 <head>
-<script src="js/jquery.js"></script>
-<script src="js/jquery.easyuploadBETA.js"></script>
-<link rel="stylesheet" type="text/css" href="css/easyupload.css" media="screen">
+    <!-- lib -->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <!-- easyAjax -->
+    <script src="js/jquery.easyAjax.js"></script>
+    <!-- easyUpload -->
+    <script src="js/jquery.easyUpload.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/easyUpload.css" media="screen">
+    <!-- easyTabs -->
+    <script src="js/jquery.easyTabs.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/easyTabs.css" media="screen">
 </head>
 <body>
-<div id="easyUpload"></div>
-<script>
-var es=$("#easyUpload").easyUploadBeta({debug:true,appendFiles:true});
-</script>
+
+    <h2>Múltiple</h2>
+    <div id="easyUpload"></div>
+    <script>
+    var es=$("#easyUpload").easyUpload({debug:true,appendFiles:true,multiple:true,folder:"files/easyUploadBeta/",isAdmin:true});
+    </script>
+    <h2>Individual</h2>
+    <div id="easyUpload2"></div>
+    <script>
+    var es2=$("#easyUpload2").easyUpload({debug:true,appendFiles:true,multiple:true,uploadSingle:true,folder:"files/easyUploadBeta/",isAdmin:true});
+    </script>
+    <h2>Pretty</h2>
+    <div id="easyUpload3"></div>
+    <script>
+    var es3=$("#easyUpload3").easyUpload({debug:true,appendFiles:true,multiple:true,uploadSingle:false,folder:"files/easyUploadBeta/",prettyUpload:true,size:10,isAdmin:true});
+    </script>
+    <h2>No autoupload</h2>
+    <div id="easyUpload4"></div>
+    <span class="btn btn-primary" id="gogoogogogo">Upload All</span><span class="btn btn-danger" id="muahahahaha">Remove All</span>
+    <script>
+    var es4=$("#easyUpload4").easyUpload({debug:true,appendFiles:true,multiple:true,autoUpload:false,folder:"files/easyUploadBeta/",prettyUpload:true,size:10,isAdmin:true});
+    $("#gogoogogogo").click(function(){
+        es4.upload();
+    });
+    $("#muahahahaha").click(function(){
+        es4.remove();
+    });
+    </script>
+    <br/><br/><br/>
+    
+    <link href="{base_url}css/jquery.easyTabs.css" rel="stylesheet" type="text/css" />
+    <script src="{base_url}js/easyJS/jquery.easyTabs.js"></script>
+    <script>
+    var ew=$.easyTabs({
+        debug:true,
+        toolbar:true
+    });
+    </script>
+    <a class="btn btn-primary" onclick="ew.newTab()">New Window</a>
+    <br/><br/><br/>
+    
+    <script src="{base_url}js/easyJS/jquery.easyAjax.js"></script>
+    <script>
+    function goSimpleAjax(){
+        $.easyAjax({
+            file:"testAjax",
+            admin:true,
+            retry:3,
+            debug:true,
+            complete:function(){console.log("OK");}
+        });
+    }
+    function goStackAjax(){
+        $.easyAjax({
+            stack:true,
+            file:"testAjax",
+            admin:true,
+            debug:true,
+            complete:function(){console.log("OK");}
+        });
+    }
+    function goIntervalAjax(){
+        $.easyAjax({
+            retry:2,
+            interval:2000,
+            file:"testAjax",
+            admin:true,
+            debug:true,
+            complete:function(){console.log("OK");}
+        });
+    }
+    </script>
+    
+    <a class="btn btn-primary" onclick="goSimpleAjax()">Go Simple AJAX!</a>
+    <a class="btn btn-primary" onclick="goStackAjax()">Go Stack AJAX!</a>
+    <a class="btn btn-primary" onclick="goIntervalAjax()">Go Interval AJAX!</a>
+
 </body>
 </html>

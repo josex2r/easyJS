@@ -1,6 +1,51 @@
 
 //PLUGIN FOR JQUERY
 (function ( $ ) {
+	
+var _easyAjax=[];
+
+
+var easyAjaxStack={
+	isRunning : _easyAjax.length,
+	lastAjax : null,
+	push : function(easyAjaxObj){
+		_easyAjax.push(easyAjaxObj);
+		return true;
+	},
+	pop : function(){
+		if(_easyAjax.length>0){
+			var returnedEasyAjaxObj=_easyAjax[0];
+			_easyAjax.splice(0,1);
+			return returnedEasyAjaxObj;
+		}else return false;
+	},
+	remove : function(index){
+		obj=index;
+		if(index<_easyAjax.length){
+			_easyAjax.splice(index,1);
+			return true;
+		}else return false;
+	},
+	get : function(index){
+		if(index<_easyAjax.length)
+			return _easyAjax[index];
+		else return false;
+	},
+	next : function(){
+		console.log("Runing easyAjaxStack:");
+		console.log(_easyAjax);
+		easyAjaxStack.isRunning=_easyAjax.length;
+		if(easyAjaxStack.isRunning){
+			var incomingCall=easyAjaxStack.get(0);
+			if(incomingCall===false)
+				easyAjaxStack.isRunning=false;
+			else{
+				incomingCall.execute();
+			}
+		}
+	}
+};
+//window.test=easyAjaxStack;
 /***********************************/
 /* 		  Create $.ajaxCall()	   */
 /***********************************/
@@ -9,52 +54,60 @@ $.easyAjax = function( params ) {
 	/*   Initialize default settings   */
 	/***********************************/
 	params = typeof params === 'undefined' ? {} : params;
-	settings={
+	var self=this;
+	self.settings={
+		//Stack incoming calls
+		stack		: typeof params.stack		===	'boolean'	?	params.stack			:	false,	//Stack and wait to execute
+		//RIA settings
 		file		: typeof params.file		===	'string'	?	params.file				:	false,	//RIA file
+		checkUser	: typeof params.checkUser	===	'boolean'	?	params.checkUser		:	true,	//only allowed users RIA[li,lo]
+		isRia		: typeof params.isRia		===	'boolean'	?	params.isRia			:	true,	//RIA+token call
+		//Hader settings
 		method		: typeof params.method		===	'string'	?	params.method			:	"POST",	//send method
 		dataType	: typeof params.dataType	===	'string' 	?	params.dataType			:	"text",	//payload type
-		interval	: typeof params.interval	===	'number' 	?	params.interval			:	0,		//interval recall time
-		timeout		: typeof params.timeout		===	'number' 	?	params.timeout			:	20000,	//max timeout
-		retry		: typeof params.retry		===	'number' 	?	params.retry			:	0,		//max tries
 		data		: typeof params.data		===	'object' 	?	params.data				:	{},		//params
+		//Callback
 		error		: typeof params.error		===	'function' 	?	params.error			:	false,	//error callback
 		success		: typeof params.success		===	'function' 	?	params.success			:	false,	//success callback
 		complete	: typeof params.complete	===	'function' 	?	params.complete			:	false,	//complete callback
+		//AJAX settings
+		interval	: typeof params.interval	===	'number' 	?	params.interval			:	0,		//interval recall time
+		timeout		: typeof params.timeout		===	'number' 	?	params.timeout			:	20000,	//max timeout
+		retry		: typeof params.retry		===	'number' 	?	params.retry			:	0,		//max tries
 		async		: typeof params.async		===	'boolean' 	?	params.async			:	true,	//is async
 		debug		: typeof params.debug		===	'boolean'	?	params.debug			:	false,	//log call
-		checkUser	: typeof params.checkUser	===	'boolean'	?	params.checkUser		:	true,	//only allowed users
-		isRia		: typeof params.isRia		===	'boolean'	?	params.isRia			:	true,	//RIA+token call
 		action		: typeof params.action		===	'string'	?	"&action="+params.action:	"",		//show content
+		//easyUpload param
 		isFile		: typeof params.isFile		===	'boolean'	?	params.isFile			:	false	//sending files
 	};
 		
-	settings.useToken=settings.isRia;	//use RIA token
+	self.settings.useToken=settings.isRia;	//use RIA token
 	
-	if(settings.debug){
+	if(self.settings.debug){
 		console.log("Initialized easyAjax");
-		console.log(settings);
+		console.log(self.settings);
 	}
 
-	var easyAjaxObj=function(settings){
-		var self=this;
+	var easyAjaxObj=function(){
+		var obj=this;
 		/***********************************/
 		/*   Initialize default functions  */
 		/***********************************/
 		var _defaultError=function(payload, textStatus, errorThrown){
 			if(_tempSettings.retry>0){
 				_tempSettings.retry--;
-				self.recall();
+				obj.recall();
 			}else{
 				if(_tempSettings.debug)
 					console.log("Error AJAX");
 				if( typeof _tempSettings.error === 'function' )
 					_tempSettings.error(payload, textStatus, errorThrown);
 				else{
-					if(xhr.status==0){
+					if(payload.status==0){
 						alert('You are offline!! Please Check Your Network.');
-					}else if(xhr.status==404){
+					}else if(payload.status==404){
 						alert('Requested URL not found.');
-					}else if(xhr.status==500){
+					}else if(payload.status==500){
 						alert('Internel Server Error.');
 					} 
 					if(textStatus=='parsererror'){
@@ -62,7 +115,7 @@ $.easyAjax = function( params ) {
 					}else if(textStatus=='timeout'){
 						alert('The conection is taking so much time. Sorry.');
 					}else{
-						alert('Unknow Error. '+xhr.responseText);
+						alert('Unknow Error. '+payload.responseText);
 					}
 				}
 			}
@@ -70,10 +123,10 @@ $.easyAjax = function( params ) {
 		var _defaultSuccess=function(payload){
 			if(_tempSettings.debug)
 				console.log("Success AJAX");
-			if( typeof _tempSettings.success === 'function' )
+			if(typeof _tempSettings.success === 'function')
 				_tempSettings.success(payload);
 			else
-				if(data.match(/\<title\>404\sNot\sFound\<\/title\>/))
+				if(payload.match(/\<title\>404\sNot\sFound\<\/title\>/))
 					alert("The page was not found");
 		};
 		var _defaultComplete=function(payload){
@@ -81,41 +134,36 @@ $.easyAjax = function( params ) {
 				if(_tempSettings.debug)
 					console.log("Complete AJAX");
 				_isRunning=false;
-				if( typeof _tempSettings.complete === 'function' )
+				if(typeof _tempSettings.complete === 'function')
 					_tempSettings.complete(payload);
-				if(_tempSettings.interval>0)
-					setTimeout(self.call,_tempSettings.interval);
 			}
+			if(_tempSettings.interval>0)
+				setTimeout(obj.run,_tempSettings.interval);
 		};
 		/***********************************/
 		/*     Extend default settings     */
 		/***********************************/
-		self.settings=$.extend(self.settings, settings);
-		if(self.settings.debug)
+		var _tempSettings=self.settings,
+			_callSettings={};
+		if(_tempSettings.debug)
 			console.log("Params are ready to rock");
 		/***********************************/
 		/*     Initialize running vars     */
 		/***********************************/
-		_tempSettings={};
-		_isRunning	=	false;
-		_xhr		=	false;
+		var _isRunning	=	false;
+		var _xhr		=	false;
 		
-		self.stop=function(){
+		obj.stop=function(){
 			if (_isRunning)
 				_xhr.abort();
-			return self;
+			return obj;
 		};
 		
-		self.call=function(tempSettings){
-			/***********************************/
-			/* 	     Initialize temp vars      */
-			/***********************************/
-			$.extend(_tempSettings, self.settings, _tempSettings, tempSettings);
-			
+		var _setCallSettings=function(newTempSettings){
+			_tempSettings=$.extend(_tempSettings, newTempSettings); //Last call priority
+				
 			if(_tempSettings.debug)
 				console.log("Temp settings are ready to rock");
-			if(_tempSettings.debug)
-				console.log("Building AJAX");
 			_isRunning=true;
 
 			var token=_tempSettings.useToken?$('#OLIF_TOKEN').val():"nA";
@@ -130,8 +178,8 @@ $.easyAjax = function( params ) {
 				else
 					var finalURL=base_url+_tempSettings.file+_tempSettings.action;
 			//PREVENT CACHE
-				_tempSettings.data.cacheControl=$.now();
-			var callSettings={
+			_tempSettings.data.cacheControl=$.now();
+			_callSettings={
 				url			: finalURL,
 	           	type		: _tempSettings.method,
 	           	dataType	: _tempSettings.dataType,
@@ -143,20 +191,56 @@ $.easyAjax = function( params ) {
            		complete	: _defaultComplete
 			};
 			if(_tempSettings.isFile){
-				callSettings.cache		= false;
-			   	callSettings.contentType= false;
-			   	callSettings.processData= false;
+				_callSettings.cache		= false;
+			   	_callSettings.contentType= false;
+			   	_callSettings.processData= false;
 			}
-			_xhr=$.ajax(callSettings);
-			return self;
+			return _callSettings;
 		};
 		
-		self.recall=function(){
-			return self.call(_tempSettings);
+		var _callStack=function(){
+			if(_tempSettings.debug)
+				console.log("Calling Stacked Ajax");
+			var currComplete=_callSettings.complete;
+			_callSettings.complete=function(){
+				currComplete();
+				easyAjaxStack.remove(0);
+				setTimeout(function(){
+					easyAjaxStack.next();
+				},500);
+			};
+			easyAjaxStack.push(obj);
+			return obj;
 		};
+		
+		obj.execute=function(){
+			_xhr=$.ajax(_callSettings);
+			return obj;
+		};
+		
+		obj.run=function(newTempSettings){
+			if(_tempSettings.debug)
+				console.log("Trying to run");
+			_setCallSettings(newTempSettings);
+			if(_tempSettings.stack===false)
+				return obj.execute();
+			else{
+				//easyAjaxStack.push(obj);
+				_callStack();
+				if(!easyAjaxStack.isRunning)
+					easyAjaxStack.next(); //Force Stack if not running
+				return obj;
+			}
+		};
+		
+		obj.recall=function(){
+			return obj.run(_tempSettings);
+		};
+		
+		obj.call=function(){}; //Previous version function
 		
 	};
-	return new easyAjaxObj(settings);
+	return new easyAjaxObj().run();
 };
 	
 }( jQuery ));
