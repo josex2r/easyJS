@@ -36,7 +36,7 @@ if($maxFiles!="" && is_numeric($maxFiles)){
 
 		if(is_array($file)){
 			//$fileName=uniqid()."_".$file["name"];
-			$fileName=$file["name"];
+			$fileName=preg_replace("/\s/", "_", $file["name"]);
 			$temp=explode(".", $file["name"]);
 			$extension=strtolower(end($temp));
 			
@@ -48,7 +48,7 @@ if($maxFiles!="" && is_numeric($maxFiles)){
 					if( $file["size"]/1024<$maxSize ){
 						if( is_file($file["tmp_name"]) && is_dir($relPath) ){
 							if(is_file($relPath.$fileName))
-								$fileName=uniqid()."_".$fileName;
+								$fileName=$fileName."_".uniqid();
 							$copyResult=false;
 							switch ($file["type"]) {
 								case 'image/png':
