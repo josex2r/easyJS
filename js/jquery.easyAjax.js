@@ -32,8 +32,8 @@ var easyAjaxStack={
 		else return false;
 	},
 	next : function(){
-		console.log("Runing easyAjaxStack:");
-		console.log(_easyAjax);
+		//console.log("Runing easyAjaxStack:");
+		//console.log(_easyAjax);
 		easyAjaxStack.isRunning=_easyAjax.length;
 		if(easyAjaxStack.isRunning){
 			var incomingCall=easyAjaxStack.get(0);
@@ -81,7 +81,7 @@ $.easyAjax = function( params ) {
 		isFile		: typeof params.isFile		===	'boolean'	?	params.isFile			:	false	//sending files
 	};
 		
-	self.settings.useToken=settings.isRia;	//use RIA token
+	self.settings.useToken=self.settings.isRia;	//use RIA token
 	
 	if(self.settings.debug){
 		console.log("Initialized easyAjax");
@@ -121,6 +121,7 @@ $.easyAjax = function( params ) {
 			}
 		};
 		var _defaultSuccess=function(payload){
+			_tempSettings.retry=0;
 			if(_tempSettings.debug)
 				console.log("Success AJAX");
 			if(typeof _tempSettings.success === 'function')
