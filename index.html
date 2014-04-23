@@ -1,95 +1,96 @@
-
 <html>
-<head>
-    <!-- lib -->
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.2.0.modified.js"></script>
-    <!-- easyAjax -->
-    <script src="js/jquery.easyAjax.js"></script>
-    <!-- easyUpload -->
-    <script src="js/jquery.easyUpload.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/easyUpload.css" media="screen">
-    <!-- easyTabs -->
-    <script src="js/jquery.easyTabs.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/easyTabs.css" media="screen">
-</head>
-<body>
+	<head>
+		<!-- Styles -->
+		<link href="css/styles.css" type="text/css" rel="stylesheet" />
+		<!-- lib -->
+		<script src="js/jquery.js"></script>
+		<!-- easyJS -->
+		<script src="js/easyParallax.min.js"></script>
 
-    <h2>Múltiple</h2>
-    <div id="easyUpload"></div>
-    <script>
-    var es=$("#easyUpload").easyUpload({debug:true,appendFiles:true,multiple:true,folder:"files/easyUploadBeta/",isAdmin:true});
-    </script>
-    <h2>Individual</h2>
-    <div id="easyUpload2"></div>
-    <script>
-    var es2=$("#easyUpload2").easyUpload({debug:true,appendFiles:true,multiple:true,uploadSingle:true,folder:"files/easyUploadBeta/",isAdmin:true});
-    </script>
-    <h2>Pretty</h2>
-    <div id="easyUpload3"></div>
-    <script>
-    var es3=$("#easyUpload3").easyUpload({debug:true,appendFiles:true,multiple:true,uploadSingle:false,folder:"files/easyUploadBeta/",prettyUpload:true,size:10,isAdmin:true});
-    </script>
-    <h2>No autoupload</h2>
-    <div id="easyUpload4"></div>
-    <span class="btn btn-primary" id="gogoogogogo">Upload All</span><span class="btn btn-danger" id="muahahahaha">Remove All</span>
-    <script>
-    var es4=$("#easyUpload4").easyUpload({debug:true,appendFiles:true,multiple:true,autoUpload:false,folder:"files/easyUploadBeta/",prettyUpload:true,size:10,isAdmin:true});
-    $("#gogoogogogo").click(function(){
-        es4.upload();
-    });
-    $("#muahahahaha").click(function(){
-        es4.remove();
-    });
-    </script>
-    <br/><br/><br/>
-    
-    <link href="{base_url}css/jquery.easyTabs.css" rel="stylesheet" type="text/css" />
-    <script src="{base_url}js/easyJS/jquery.easyTabs.js"></script>
-    <script>
-    var ew=$.easyTabs({
-        debug:true,
-        toolbar:true
-    });
-    </script>
-    <a class="btn btn-primary" onclick="ew.newTab()">New Window</a>
-    <br/><br/><br/>
-    
-    <script src="{base_url}js/easyJS/jquery.easyAjax.js"></script>
-    <script>
-    function goSimpleAjax(){
-        $.easyAjax({
-            file:"testAjax",
-            admin:true,
-            retry:3,
-            debug:true,
-            complete:function(){console.log("OK");}
-        });
-    }
-    function goStackAjax(){
-        $.easyAjax({
-            stack:true,
-            file:"testAjax",
-            admin:true,
-            debug:true,
-            complete:function(){console.log("OK");}
-        });
-    }
-    function goIntervalAjax(){
-        $.easyAjax({
-            retry:2,
-            interval:2000,
-            file:"testAjax",
-            admin:true,
-            debug:true,
-            complete:function(){console.log("OK");}
-        });
-    }
-    </script>
-    
-    <a class="btn btn-primary" onclick="goSimpleAjax()">Go Simple AJAX!</a>
-    <a class="btn btn-primary" onclick="goStackAjax()">Go Stack AJAX!</a>
-    <a class="btn btn-primary" onclick="goIntervalAjax()">Go Interval AJAX!</a>
+	</head>
+	<body>
+		
+		<h1>Parallax - easyParallax.min.js</h1>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		
+		<script>
+		$(document).ready(function(){
+			$("#parallax").easyParallax({
+				offsetX		:"50%",	//Initial X position
+				offsetY		: -5,	//Initial Y position
+				speedFactor	: 0.9,	//Scroll speed
+				imageHeight	: 1080	//Background image height
+			});
+		});
+		</script>
+		<div id="parallax">
+			<div class="container">
+				<h2>Minions everywhere</h2>
+				<div>
+					<h4>Some of minions</h4>
+					<p>
+						Minions ipsum consectetur occaecat officia occaecat gelatooo la bodaaa poulet tikka masala pepete potatoooo daa.
+						<br />
+						Tank yuuu! nisi po kass occaecat belloo! Magna. Velit reprehenderit tulaliloo underweaaar.
+						<br />
+						Tank yuuu! bananaaaa pepete poulet tikka masala underweaaar qui qui. Aliqua ut consectetur aaaaaah potatoooo potatoooo occaecat velit nostrud chasy velit. Ut minim voluptate pepete reprehenderit daa irure sit amet incididunt chasy dolor.
+					</p>
+				</div>
 
-</body>
+			</div>
+		</div>
+		
+		<p>
+			a
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>aaa
+		</p>
+	</body>
 </html>

@@ -1,0 +1,61 @@
+#parallax{
+	width:100%;
+	background-size: 100%;
+	float:left;
+	background-color:#fff;
+	padding-bottom:0px;
+	background-image:url(../img/parallax_bg.jpg);
+	background-position:center;
+	height:376px;
+	margin-bottom:15px;
+}
+
+.container{
+	width:980px;
+	margin:0 auto;
+	padding-top:60px;
+	text-align:center;
+}
+
+#parallax h2{
+	text-align:center;
+	color:#FFF;
+	font-size:33px;
+	text-transform:uppercase;
+}
+
+#parallax h3{
+	text-align:center;
+	color:#FFF;
+	font-size:22px;
+	font-weight:300;
+	margin-top:8px;
+}
+
+#parallax div{
+	margin-top:35px;
+	width:980px;
+	background-image:url(../img/linea_blanca.jpg);
+	background-repeat:no-repeat;
+	background-position: center 17px ;
+}
+
+#parallax div h4{
+	text-transform:uppercase;
+	color:#166BEC;
+	font-size:18px;
+	background-color:#fff;
+	padding-left:10px;
+	padding-right:10px;
+	padding-bottom:3px;
+	padding-top:3px;
+	display:inline-block;
+}
+
+#parallax div p{
+	color:#FFF;
+	text-align:center;
+	font-size:14px;
+	margin-top:15px;
+	margin-bottom:8px;
+}

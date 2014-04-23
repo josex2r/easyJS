@@ -1,4 +1,4 @@
 easyUpload
 ==========
 
-AJAX file upload plugin for jQuery
+Suite of jQuery plugins
