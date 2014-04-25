@@ -1,3 +1,15 @@
+
+body{
+	background-color: #000;
+}
+
+#topHome{
+	background: url(../img/home_bg.jpg) no-repeat center center fixed;
+	opacity: 0.5;
+}
+
+
+
 #parallax{
 	width:100%;
 	background-size: 100%;

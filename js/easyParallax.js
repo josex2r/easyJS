@@ -52,10 +52,10 @@
 				if( scroll>0 )
 					scroll=0;
 				
-				//console.log(settings.imageHeight-height)
+				console.log( scroll )
 				
-				if( scroll < -(settings.imageHeight-height) )
-					scroll=-(settings.imageHeight-height);
+				if( scroll < -( settings.imageHeight % height )  )
+					scroll = -( settings.imageHeight % height ) ;
 				
 
 				//$this.css('background-position', xpos + " " + Math.round((firstTop - pos) * speedFactor) + "px");
@@ -65,5 +65,7 @@
 
 		$window.bind('scroll', update).resize(update);
 		update();
+		
+		return $this;
 	};
 })(jQuery);
