@@ -21,8 +21,8 @@
 			$("#topHome").easyParallax({
 				offsetX		:"50%",	//Initial X position
 				offsetY		: 0,	//Initial Y position
-				speedFactor	: 0.3,	//Scroll speed
-				imageHeight	: 3744	//Background image height
+				speedFactor	: 0.8,	//Scroll speed
+				maxHeight	: false	//To prevent stop scrolling avobe the image height
 			});
 		});
 		</script>
@@ -56,9 +56,9 @@
 		$(document).ready(function(){
 			$("#parallax").easyParallax({
 				offsetX		:"50%",	//Initial X position
-				offsetY		: 0,	//Initial Y position
+				offsetY		: -300,	//Initial Y position
 				speedFactor	: 0.8,	//Scroll speed
-				imageHeight	: 1080	//Background image height
+				maxHeight	: 1080	//Background image height
 			});
 		});
 		</script>

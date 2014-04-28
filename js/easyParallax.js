@@ -10,10 +10,9 @@
 		
 		var defaults = {
 			offsetX: "50%",
-			speedFactor: 0.12,
-			outerHeight: true,
 			offsetY: 0,
-			imageHeight : 0
+			speedFactor: 0.12,
+			maxHeight : false
        };
        
        var settings = $.extend(defaults, settings);
@@ -34,29 +33,42 @@
 			$this.each(function(){
 				var $element = $(this);
 				var top = $element.offset().top;
-				if(settings.outerHeight){
-					var height = $element.outerHeight(true);
-				}else{
-					var height = $element.height();
-				}
-				
-				//console.log(top + height < pos || top > pos + windowHeight)
-				
-				//Check if totally above or totally below viewport
-				if (top + height < pos || top > pos + windowHeight) {
-					return;
-				}
+				var height = $element.height();
+				var maxScroll = null;
 				
 				var scroll =  Math.round((top - pos - (windowHeight/2)) * settings.speedFactor + settings.offsetY);
 				
-				if( scroll>0 )
-					scroll=0;
+				//Only check if totally avove the image if maxHeight===false
+				if( settings.maxHeight!==false ){
 				
-				console.log( scroll )
-				
-				if( scroll < -( settings.imageHeight % height )  )
-					scroll = -( settings.imageHeight % height ) ;
-				
+					//Check if totally above or totally below viewport
+					if (top + height < pos || top > pos + windowHeight) {
+						return;
+					}
+					
+					//Above the image
+					if( scroll>0 )
+						scroll=0;
+					
+					/*
+					console.log( settings.maxHeight )
+					console.log( height )
+					console.log( -(scroll + (scroll - settings.offsetY)) > settings.maxHeight )
+					console.log( scroll + (scroll - settings.offsetY) )
+					console.log( "--------" )
+					*/
+					
+					//Below the image
+					if( -(scroll + (scroll - settings.offsetY)) > settings.maxHeight ){
+						
+						if( maxScroll===null )
+							maxScroll = height;
+						
+						scroll = maxScroll;
+						
+					}
+					
+				}
 
 				//$this.css('background-position', xpos + " " + Math.round((firstTop - pos) * speedFactor) + "px");
 				$this.css('backgroundPosition', settings.offsetX + " " + scroll + "px");
