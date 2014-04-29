@@ -70,7 +70,6 @@
 					
 				}
 
-				//$this.css('background-position', xpos + " " + Math.round((firstTop - pos) * speedFactor) + "px");
 				$this.css('backgroundPosition', settings.offsetX + " " + scroll + "px");
 			});
 		}		
