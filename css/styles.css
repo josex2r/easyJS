@@ -1,11 +1,10 @@
 
 body{
-	background-color: #000;
+	background-color: #f9f9f9;
 }
 
 #topHome{
 	background: url(../img/home_bg.jpg) no-repeat center center fixed;
-	opacity: 0.5;
 }
 
 
@@ -29,14 +28,23 @@ body{
 	text-align:center;
 }
 
-#parallax h2{
+h1{
+	text-align:center;
+	color:#FFF;
+	font-size:50px;
+	text-transform:uppercase;
+	text-decoration: underline;
+	text-shadow: 2px 2px #000;
+}
+
+h2{
 	text-align:center;
 	color:#FFF;
 	font-size:33px;
 	text-transform:uppercase;
 }
 
-#parallax h3{
+h3{
 	text-align:center;
 	color:#FFF;
 	font-size:22px;
@@ -44,7 +52,7 @@ body{
 	margin-top:8px;
 }
 
-#parallax div{
+#parallax + div{
 	margin-top:35px;
 	width:980px;
 	background-image:url(../img/linea_blanca.jpg);
@@ -52,7 +60,7 @@ body{
 	background-position: center 17px ;
 }
 
-#parallax div h4{
+#parallax > div h4{
 	text-transform:uppercase;
 	color:#166BEC;
 	font-size:18px;
@@ -64,10 +72,18 @@ body{
 	display:inline-block;
 }
 
-#parallax div p{
+#parallax > div p{
 	color:#FFF;
 	text-align:center;
 	font-size:14px;
 	margin-top:15px;
 	margin-bottom:8px;
+}
+
+#minionHello{
+	background-image: url(../img/minion_hello.png);
+	width: 400px !important;
+	height:376px !important;
+	float: right;
+	margin-top: -241px;
 }

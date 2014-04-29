@@ -9,6 +9,7 @@
 		<!-- easyJS -->
 		<script src="js/easyParallax.js"></script>
 		<script src="js/easyBackground.js"></script>
+		<script src="js/easyAccordion.js"></script>
 
 	</head>
 	<body>
@@ -32,7 +33,6 @@
 			</div>
 		</div>
 		
-		<h1>Parallax - easyParallax.min.js</h1>
 		<br/>
 		<br/>
 		<br/>
@@ -57,16 +57,16 @@
 			$("#parallax").easyParallax({
 				offsetX		:"50%",	//Initial X position
 				offsetY		: -300,	//Initial Y position
-				speedFactor	: 0.8,	//Scroll speed
+				speedFactor	: 0.4,	//Scroll speed
 				maxHeight	: 1080	//Background image height
 			});
 		});
 		</script>
 		<div id="parallax">
 			<div class="container">
-				<h2>Minions everywhere</h2>
+				<h1>Parallaxing Minions</h1>
 				<div>
-					<h4>Some of minions</h4>
+					<h4>AAAAAAAAAAAAAAAAAAAAAAAA!!!!!!</h4>
 					<p>
 						Minions ipsum consectetur occaecat officia occaecat gelatooo la bodaaa poulet tikka masala pepete potatoooo daa.
 						<br />
@@ -75,8 +75,21 @@
 						Tank yuuu! bananaaaa pepete poulet tikka masala underweaaar qui qui. Aliqua ut consectetur aaaaaah potatoooo potatoooo occaecat velit nostrud chasy velit. Ut minim voluptate pepete reprehenderit daa irure sit amet incididunt chasy dolor.
 					</p>
 				</div>
-
 			</div>
+			
+			<script>
+			//Parallax inside parallax!!
+			$(document).ready(function(){
+				$("#minionHello").easyParallax({
+					offsetX		:"50%",	//Initial X position
+					offsetY		: -100,	//Initial Y position
+					speedFactor	: 0.3,	//Scroll speed
+					maxHeight	: 7020	//Background image height
+				});
+			});
+			</script>
+			<div id="minionHello"></div>
+			
 		</div>
 		
 		<p>
@@ -160,58 +173,49 @@
 			<br/>
 			<br/>
 			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>
-			<br/>aaa
 		</p>
+		
+		<script>
+		$(document).ready(function(){
+			$("#accordion").easyAccordion();
+		});
+		</script>
+		<div id="accordion">
+			<div>Título 1</div>
+			<div>
+				<p>Contenido<br/>de<br/>la<br/>seccion<br/>1</p>
+			</div>
+			<div>Título 2</div>
+			<div>
+				<p>Contenido<br/>de<br/>la<br/>seccion<br/>2</p>
+			</div>
+			<div>Título 3</div>
+			<div>
+				<p>Contenido<br/>de<br/>la<br/>seccion<br/>3</p>
+			</div>
+			<div>Título 4</div>
+			<div>
+				<p>Contenido<br/>de<br/>la<br/>seccion<br/>4</p>
+			</div>
+		</div>
+			
+		<p>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+		</p>
+		
 	</body>
 </html>
