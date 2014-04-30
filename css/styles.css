@@ -140,3 +140,23 @@ h3{
 .accordion > *:nth-child(2n) p{
 	font-size: 14px !important;
 }
+
+
+
+
+
+
+
+#slider{
+	width:100%;
+	height: 300px;
+}
+
+#slider > *:nth-child(2n){
+	background-color: red;
+}
+
+#slider > *:nth-child(2n-1){
+	background-color: green;
+}
+
