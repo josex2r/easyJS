@@ -14,6 +14,8 @@ body{
 	margin:0 auto;
 	padding-top:60px;
 	text-align:center;
+	clear:both;
+	padding:20px 0px;
 }
 
 h1{
@@ -90,32 +92,51 @@ h3{
 	width: 400px !important;
 	height:376px !important;
 	float: right;
-	margin-top: -241px;
+	margin-top: -221px;
 }
 
 
 
 #accordions{
-	height: 1000px;
+	height: 1200px;
 	background-color: #e7e7e7;
 }
 
 .accordion{
 	background-color: #ccc;
 	float:left;
-	margin-left:50px;
+	margin-left:20px;
+	width: 460px;
 }
 .accordion > *:nth-child(2n-1){
 	padding: 15px 40px;
-	width: 683px;
 	background-color: #e7e7e7;
 	font-size: 20px;
 	cursor:pointer;
 	border: 2px solid #bbb;
 	border-radius: 8px 8px 0px 0px;
+	max-width: 460px;
 }
+
+.accordion > *:nth-child(2n-1) div{
+	width:15px;
+	height:15px;
+	float:right;
+}
+
+.accordion > *:nth-child(2n-1) div.on{
+	background-color: green;
+}
+
+.accordion > *:nth-child(2n-1) div.off{
+	background-color: red;
+}
+
 .accordion > *:nth-child(2n){
 	background-color: #bbb;
 	padding:15px;
-	width: 683px;
+}
+
+.accordion > *:nth-child(2n) p{
+	font-size: 14px !important;
 }

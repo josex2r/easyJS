@@ -1,23 +1,25 @@
 (function($) {
-	var $window = $(window);
-
+	
 	$.fn.easyAccordion = function(settings){
 		
 		var defaults = {
 				opened		: false,//No section opened [int || array]
-				maxOpened	: 1,	//Max section opened at same time
-				chevronUp	: "DEFAULT",
-				chevronDown	: "DEFAULT"
+				maxOpened	: 1	//Max section opened at same time
 			},
 			settings = $.extend(defaults, settings),
 			$ac = $(this),
 			$titles = $ac.children(":even"),
 			$sections = $ac.children(":odd"),
 			_openedQueue = [],
-			defaultChevronUp = "-",
-			defaultChevronDown = "+",
 			_linkedAccordions = [];
-		console.log($titles)
+		
+		
+		
+		//Initialize chevrons
+		$titles.each(function(){
+			$(this).append("<div class='off'></div>");
+		});
+
 		//Link another accordion to work together
 		$ac.linkAccordion = function($newAccordion, newMaxOpened){
 			_linkedAccordions.push( $newAccordion );
@@ -74,9 +76,12 @@
 		//Open section
 		$ac.open = function(sectionIndex){
 			if( !$ac.isOpened(sectionIndex) ){
-				var $section = $( $sections.get( sectionIndex ) );
+				var $section = $( $sections.get( sectionIndex ) ),
+					$title = $( $titles.get( sectionIndex ) );
 				
 				$section.slideDown();
+				
+				$title.find("div").removeClass("off").addClass("on");
 					
 				//Hide if reached max opened at once(this accordion)
 				if( _openedQueue.length>=settings.maxOpened ){
@@ -99,9 +104,12 @@
 		$ac.close = function(sectionIndex){
 			//console.log("#"+sectionIndex+" - "+$ac.isOpened(sectionIndex))
 			if( $ac.isOpened(sectionIndex) ){
-				var $section = $( $sections.get( sectionIndex ) );
+				var $section = $( $sections.get( sectionIndex ) ),
+					$title = $( $titles.get( sectionIndex ) );
 				
 				$section.slideUp();
+				
+				$title.find("div").removeClass("on").addClass("off");
 				
 				//Remove index from queue
 				_openedQueue.splice( _openedQueue.indexOf(sectionIndex), 1 );
@@ -123,8 +131,7 @@
 		}
 		
 		//Toggle section
-		$ac.toggle = function(sectionIndex){			
-			var $section = $( $sections.get( sectionIndex ) );
+		$ac.toggle = function(sectionIndex){
 			//Is opened, then close
 			if( $ac.isOpened(sectionIndex) ){
 				
@@ -143,8 +150,7 @@
 		
 		//Bind titles click
 		$titles.click(function(){
-			var $this = $(this),
-				index = $titles.index( this );
+			var index = $titles.index( this );
 			
 			$ac.toggle( index );
 
