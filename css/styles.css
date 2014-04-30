@@ -9,18 +9,6 @@ body{
 
 
 
-#parallax{
-	width:100%;
-	background-size: 100%;
-	float:left;
-	background-color:#fff;
-	padding-bottom:0px;
-	background-image:url(../img/parallax_bg.jpg);
-	background-position:center;
-	height:376px;
-	margin-bottom:15px;
-}
-
 .container{
 	width:980px;
 	margin:0 auto;
@@ -52,6 +40,20 @@ h3{
 	margin-top:8px;
 }
 
+
+
+
+#parallax{
+	width:100%;
+	background-size: 100%;
+	float:left;
+	background-color:#fff;
+	padding-bottom:0px;
+	background-image:url(../img/parallax_bg.jpg);
+	background-position:center;
+	height:376px;
+	margin-bottom:15px;
+}
 #parallax + div{
 	margin-top:35px;
 	width:980px;
@@ -80,10 +82,40 @@ h3{
 	margin-bottom:8px;
 }
 
+
+
+
 #minionHello{
 	background-image: url(../img/minion_hello.png);
 	width: 400px !important;
 	height:376px !important;
 	float: right;
 	margin-top: -241px;
+}
+
+
+
+#accordions{
+	height: 1000px;
+	background-color: #e7e7e7;
+}
+
+.accordion{
+	background-color: #ccc;
+	float:left;
+	margin-left:50px;
+}
+.accordion > *:nth-child(2n-1){
+	padding: 15px 40px;
+	width: 683px;
+	background-color: #e7e7e7;
+	font-size: 20px;
+	cursor:pointer;
+	border: 2px solid #bbb;
+	border-radius: 8px 8px 0px 0px;
+}
+.accordion > *:nth-child(2n){
+	background-color: #bbb;
+	padding:15px;
+	width: 683px;
 }
