@@ -259,8 +259,14 @@
 		<div class="container">
 			
 			<script>
+			var slider;
 			$(document).ready(function(){
-				$("#slider").easySlider();
+				slider=$("#slider").easySlider({
+					active	: 0, //First slide to show
+					auto	: true,	//Autoslide
+					delay	: 2000, //Transition timeout
+					touch	: true, //Enables touch (Devices + Mouse)
+				});
 			});
 			</script>
 			
@@ -300,6 +306,9 @@
 				</div>
 				
 			</div>
+			
+			<div onclick="slider.prev()" style="padding:20px;background: #ccc;width: 45%;float:left">Anterior <<</div>
+			<div onclick="slider.next()" style="padding:20px;background: #aaa;width: 45%;float:right">Siguiente >></div>
 		
 		</div>
 		
