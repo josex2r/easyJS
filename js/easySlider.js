@@ -18,8 +18,7 @@
 				next	: settings.active==$slides.length-1 ? 0 : settings.active+1
 			},
 			_timer = null, //Timeout function
-			_switching = false, //True is animating slide
-			_extraDelay = 0; //Add extra time to the next _timer execution
+			_switching = false; //True is animating slide
 		
 		//Set slider css
 		$slider.css({
@@ -82,13 +81,15 @@
 		_setPosition();
 		
 		//Next slide
-		//Delay prevents switching fast if user toggles next or prev action
-		$slider.next = function(delay){
+		$slider.next = function(){
+			
 			if( _switching===false ){
-				_blockSlider();
 				
-				//Add extra delay to timeout function
-				_extraDelay = delay || settings.delay;
+				if( settings.auto ){
+					_timer.add(400); //Add extra time to slide animation
+				}
+				
+				_blockSlider();
 				
 				//Update index
 				_updateIndex('next');
@@ -96,29 +97,35 @@
 				//Switch class
 				_acivateSlide();
 				
-				//Perform animation
-				$slides.active.add( $slides.next ).animate({
-					left : "-=100%"
-				}, function(){
-					
+				var oncomplete = function(){
 					//Relocate slides
 					_setPosition();
 				
 					_unblockSlider();
-					
+				};
+				
+				//Perform animation
+				$slides.active.animate({
+					left : "-100%"
+				}, oncomplete);
+				
+				$slides.next.animate({
+					left : "0%"
 				});
+				
 				
 			}
 		};
 		
 		//Previous slide
-		//Delay prevents switching fast if user toggles next or prev action
-		$slider.prev = function(delay){
+		$slider.prev = function(){
 			if( _switching===false ){
-				_blockSlider();
 				
-				//Add extra delay to timeout function
-				_extraDelay = delay || settings.delay;
+				if( settings.auto ){
+					_timer.add(400); //Add extra time to slide animation
+				}
+				
+				_blockSlider();
 				
 				//Update index
 				_updateIndex('prev');
@@ -126,16 +133,20 @@
 				//Switch class
 				_acivateSlide();
 				
-				//Perform animation
-				$slides.active.add( $slides.prev ).animate({
-					left : "+=100%"
-				}, function(){
-					
+				var oncomplete = function(){
 					//Relocate slides
 					_setPosition();
 				
 					_unblockSlider();
-					
+				};
+				
+				//Perform animation
+				$slides.prev.animate({
+					left : "0%"
+				}, oncomplete);
+				
+				$slides.active.animate({
+					left : "100%"
 				});
 				
 			}
@@ -160,65 +171,96 @@
 		
 		//Slider time controls
 		function Timer(fn, delay){
-			var complete = false,
-				running = true,
-				startTime = new Date().getTime(),
-				timerId = setTimeout(fn, delay),
+			var startTime,
+				self = this,
+				timer,
 				_fn = fn,
+				_args = arguments,
 				_delay = delay;
 			
-		    function _timeDiff(date1, date2) {
-		        return date2 ? date2 - date1 : new Date().getTime() - date1;
-		    }
-		
-		    this.cancel = function(){
-		    	running = false;
-		    	complete = false;
-		        clearTimeout(timerId);
+			this.running = false;
+			
+			this.onpause	= function(){};
+			this.onresume	= function(){};
+			
+			this.cancel = function(){
+				this.running = false;
+		        clearTimeout(timer);
 		    }
 		
 		    this.pause = function(){
-		    	if( !complete && running ){
+		    	if( this.running ){
+		    		delay -= new Date().getTime() - startTime;
+		    		console.log(delay)
 			    	this.cancel();
-			    	totalTimeRun = _timeDiff(startTime);
-			        complete = totalTimeRun >= delay;
+			    	
+			    	this.onpause();
 			    }
 		    }
 		
 		    this.resume = function(){
-		    	if( !complete && !running ){
-		    		running = true;
-		    		ident = complete ? -1 : setTimeout(fn, delay - totalTimeRun);
+		    	if( !this.running ){
+		    		this.running = true;
+		    		startTime = new Date().getTime();
+		    		
+		    		timer = setTimeout(function(){
+		    			_fn.apply(self, Array.prototype.slice.call(_args, 2, _args.length)); //Execute function with initial arguments, removing (fn & delay)
+		    		}, delay);
+		    		
+		    		this.onresume();
 		    	}
 		    }
 		    
 		    this.reset = function(){
 		    	this.cancel();
-	    		complete = false;
-	    		running = true;
-	    		startTime = new Date().getTime();
-	    		timerId = setTimeout(_fn, _delay);
+	    		this.running = true;
+	    		delay = _delay;
+	    		timer = setTimeout(function(){
+	    			_fn.apply(self, Array.prototype.slice.call(_args, 2, _args.length)); //Execute function with initial arguments, removing (fn & delay)
+	    		}, _delay);
 		    }
-		}//var a = new Timer(function(){console.log("complete");}, 2000);
+		    
+		    this.add = function(extraDelay){
+		    	this.pause();
+		    	delay += extraDelay;
+		    	console.log("a")
+		    	//this.resume();
+		    };
+		    
+		    this.resume();
+		}
 		
+		//Creates slider timer to switch slides
 		function _setTimer(running){
 			if( _timer===null || running ){
-				console.log(_timer)
-				_timer = setTimeout(function(){
+				
+				//Initialize timeout
+				_timer = new Timer(function(){
+					//Go to next slide
+					$slider.next();
+					//Reset this timeout
+					_timer.reset();
 					
-					$slider.next(1);
-					
-					var delay = _extraDelay;
-					
-					_extraDelay = 0;
-					
-					return setTimeout(function(){
-						_setTimer( true );
-					}, settings.delay + delay);
-					
-				}, settings.delay + _extraDelay);
+				}, settings.delay);
+				
+				//Force stop slide
+				_timer.onpause = function(){
+					//Stop animation
+					$slides.active.add( $slides.prev ).add( $slides.next ).stop();
+					//Block slide
+					_unblockSlider();
+					//Reset indexs
+					_updateIndex('prev');
+				}
+				
+				//Force continue slide
+				_timer.onresume = function(){
+					//Coninue animation with reseted values
+					$slider.next();
+				}
 			}
 		}
+		//Initialize on start if settings.auto === true
 		if( settings.auto ){
 			_setTimer();
 		}
@@ -227,15 +269,15 @@
 		$slider.play = function(){
 			if( _timer===null ){
 				_setTimer();
+			}else{
+				_timer.resume();
 			}
 		}
 		
 		//Stop auto slide
 		$slider.stop = function(){
-			console.log(_timer)
 			if( _timer!==null ){
-				clearTimeout(_timer);
-				_timer = null;
+				_timer.pause();
 			}
 		}
 		
@@ -278,8 +320,6 @@
 				e.preventDefault();
 				if( _touch!==null ){
 					
-					console.log( _touch );
-					
 					//Disable touch event
 					_touch = null;
 					
@@ -290,6 +330,7 @@
 					
 				}
 			});
+			
 		}
 		
 		
