@@ -8,6 +8,7 @@
 				auto	: true,	//Autoslide
 				delay	: 2000, //Transition timeout
 				touch	: true,
+				preventScrolling : true, //prevents scrolling when touch-sliding (only works if touch enabled)
 				timeout : 400 //Animation time
 			},
 			settings = $.extend(defaults, settings),
@@ -314,7 +315,11 @@
 			
 			//Start drag
 			$slider.on('touchstart mousedown', function(e){
-				e.preventDefault();
+				
+				if( settings.preventScrolling ){
+					e.preventDefault();
+				}
+
 				if( _touch===null && _switching===false ){
 					
 					//Enable touch event
@@ -350,7 +355,11 @@
 			
 			//User dragging
 			$slider.on('touchmove mousemove', function(e){
-				e.preventDefault();
+				
+				if( settings.preventScrolling ){
+					e.preventDefault();
+				}
+				
 				if( _touch!==null ){
 					
 					switch( e.type ){
@@ -391,7 +400,11 @@
 			
 			//End drag
 			$slider.on('touchend mouseup', function(e){
-				e.preventDefault();
+				
+				if( settings.preventScrolling ){
+					e.preventDefault();
+				}
+				
 				if( _touch!==null ){
 					
 					//Gest displacement relative to the last known position

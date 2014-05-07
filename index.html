@@ -267,7 +267,15 @@
 					delay	: 2000, //Transition timeout
 					touch	: true, //Enables touch (Devices + Mouse)
 					timeout : 400, //Animation time
+					preventScrolling : true,  //prevents scrolling when touch-sliding (only works if touch enabled)
+					
 				});
+				
+				//How to stop the slider?
+				//slider.stop();
+				
+				//How to resume the slider?
+				//slider.play();
 				
 				//Parallaxing slider!!!!!
 				$("#slider > div").easyParallax({
