@@ -266,7 +266,14 @@
 					auto	: true,	//Autoslide
 					delay	: 2000, //Transition timeout
 					touch	: true, //Enables touch (Devices + Mouse)
-					timeout : 300, //Animation time
+					timeout : 400, //Animation time
+				});
+				
+				//Parallaxing slider!!!!!
+				$("#slider > div").easyParallax({
+					offsetY		: -100,	//Initial Y position
+					speedFactor	: 0.3,	//Scroll speed
+					maxHeight	: 7020	//Background image height
 				});
 			});
 			</script>

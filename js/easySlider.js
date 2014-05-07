@@ -96,7 +96,11 @@
 		};
 		
 		//Makes slides moves
-		function _performAnimation(action){
+		function _performAnimation(action, speed){
+			
+			var activeLeft	= "+=0px",
+				prevLeft	= "+=0px",
+				nextLeft	= "+=0px";
 			
 			_blockSlider();
 			
@@ -106,15 +110,9 @@
 					//Update index
 					_updateIndex('prev');
 					
-					$slides.prev.animate({
-						left : "0%"
-					}, settings.timeout);
+					prevLeft = "0%";
 					
-					$slides.active.animate({
-						left : "100%"
-					}, settings.timeout);
-					
-					//_currentAnimation = new Timer(_onAnimationComplete, settings.timeout+1);
+					activeLeft = "100%";
 					
 					break;
 				case 'next':
@@ -122,38 +120,44 @@
 					//Update index
 					_updateIndex('next');
 					
-					$slides.active.animate({
-						left : "-100%"
-					}, settings.timeout);
+					activeLeft = "-100%";
 					
-					$slides.next.animate({
-						left : "0%"
-					}, settings.timeout);
-					
-					//_currentAnimation = new Timer(_onAnimationComplete, settings.timeout+1);
+					nextLeft = "0%";
 					
 					break;
 				case 'restore':
 					
-					$slides.prev.animate({
-						left : "-100%"
-					}, settings.timeout/3);
+					prevLeft = "-100%";
 					
-					$slides.active.animate({
-						left : "0%"
-					}, settings.timeout/3);
+					activeLeft =  "0%";
 					
-					$slides.next.animate({
-						left : "100%"
-					}, settings.timeout/3);
-					console.log(_index)
-					/*
-					if( settings.auto ){
-						_timer.resume();
-					}*/
+					nextLeft = "100%";
 					
 					break;
 			}
+			
+			switch( speed ){
+				case 'slow':
+					speed = settings.timeout * 2;
+					break;
+				case 'fast':
+					speed = settings.timeout / 4;
+					break;
+				default:
+					speed = settings.timeout;
+			}
+			
+			$slides.prev.animate({
+				left : prevLeft
+			}, speed);
+			
+			$slides.active.animate({
+				left : activeLeft
+			}, speed);
+			
+			$slides.next.animate({
+				left : nextLeft
+			}, speed);
 			
 			_currentAnimation = new Timer(_onAnimationComplete, settings.timeout+1);
 			
@@ -327,8 +331,9 @@
 							_touch.startY = e.clientY;
 							break;
 						case 'touchstart':
-							_touch.startX = e.touches[0].clientX;
-							_touch.startY = e.touches[0].clientY;
+						console.log(e.originalEvent)
+							_touch.startX = e.originalEvent.targetTouches[0].clientX;
+							_touch.startY = e.originalEvent.targetTouches[0].clientY;
 							break;
 					}
 					
@@ -357,15 +362,15 @@
 							break;
 						case 'touchmove':
 							_touch.coords.push({
-								x : e.touches[0].clientX,
-								y : e.touches[0].clientY
+								x : e.originalEvent.targetTouches[0].clientX,
+								y : e.originalEvent.targetTouches[0].clientY
 							});
 							break;
 					}
 					
 					//Gest displacement relative to the last known position
-					var distX = _touch.coords[_touch.coords.length-2].x - _touch.coords[_touch.coords.length-1].x,
-						distY = _touch.coords[_touch.coords.length-2].y - _touch.coords[_touch.coords.length-1].y;
+					var distX = _touch.coords[_touch.coords.length-2].x - _touch.coords[_touch.coords.length-1].x;
+					//var distY = _touch.coords[_touch.coords.length-2].y - _touch.coords[_touch.coords.length-1].y;
 					
 					/*
 					console.log("startX: "+_touch.coords[0].x+", thisX: "+_touch.coords[_touch.coords.length-1].x);
@@ -391,17 +396,20 @@
 					
 					//Gest displacement relative to the last known position
 					var distX	= _touch.startX - _touch.coords[_touch.coords.length-1].x,
-						distY	= _touch.startY - _touch.coords[_touch.coords.length-1].y,
 						sliderW	= $slider.width();
+					//var distY	= _touch.startY - _touch.coords[_touch.coords.length-1].y;
+						
 					
 					//If displacement is bigger than 1/4 of the slider width
 					if( Math.abs(distX) > sliderW/4 ){
+						
 						//Perform animation
 						if( distX<0 ){
-							_performAnimation("prev");
+							_performAnimation("prev", "fast");
 						}else{
-							_performAnimation("next");
+							_performAnimation("next", "fast");
 						}
+						
 					}else{
 						//Restore position and continue sliding if auto
 						_performAnimation("restore");

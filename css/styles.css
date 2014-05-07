@@ -160,9 +160,11 @@ h3{
 
 #slider > *:nth-child(2n){
 	background-color: red;
+	background-image: url(../img/touchable_bg1.jpg);
 }
 
 #slider > *:nth-child(2n-1){
 	background-color: green;
+	background-image: url(../img/touchable_bg2.jpg);
 }
 
