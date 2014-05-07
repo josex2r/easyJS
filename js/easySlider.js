@@ -7,7 +7,8 @@
 				active	: 0, //First slide to show
 				auto	: true,	//Autoslide
 				delay	: 2000, //Transition timeout
-				touch	: true
+				touch	: true,
+				timeout : 400 //Animation time
 			},
 			settings = $.extend(defaults, settings),
 			$slider = $(this),
@@ -18,7 +19,8 @@
 				next	: settings.active==$slides.length-1 ? 0 : settings.active+1
 			},
 			_timer = null, //Timeout function
-			_switching = false; //True is animating slide
+			_switching = false, //True if animating slide
+			_currentAnimation;
 		
 		//Set slider css
 		$slider.css({
@@ -55,6 +57,7 @@
 		
 		//Slides transition
 		function _setPosition(){
+			
 			//Update slides
 			$slides.prev	= $( $slides.get( _index.prev ) );
 			$slides.active	= $( $slides.get( _index.active ) );
@@ -77,81 +80,121 @@
 				top	: - _index.next * 100 + "%",
 				left: "100%"
 			});
+			console.log(_index)
 		}
 		_setPosition();
 		
-		//Next slide
-		$slider.next = function(){
+		function _onAnimationComplete(){
+			//Relocate slides
+			_setPosition();
+		
+			_unblockSlider();
 			
-			if( _switching===false ){
-				
-				if( settings.auto ){
-					_timer.add(400); //Add extra time to slide animation
-				}
-				
-				_blockSlider();
-				
-				//Update index
-				_updateIndex('next');
-				
-				//Switch class
-				_acivateSlide();
-				
-				var oncomplete = function(){
-					//Relocate slides
-					_setPosition();
-				
-					_unblockSlider();
-				};
-				
-				//Perform animation
-				$slides.active.animate({
-					left : "-100%"
-				}, oncomplete);
-				
-				$slides.next.animate({
-					left : "0%"
-				});
-				
-				
+			if( settings.auto ){
+				_timer.reset();
 			}
 		};
 		
-		//Previous slide
-		$slider.prev = function(){
-			if( _switching===false ){
-				
-				if( settings.auto ){
-					_timer.add(400); //Add extra time to slide animation
-				}
-				
-				_blockSlider();
-				
-				//Update index
-				_updateIndex('prev');
-				
-				//Switch class
-				_acivateSlide();
-				
-				var oncomplete = function(){
-					//Relocate slides
-					_setPosition();
-				
-					_unblockSlider();
-				};
-				
-				//Perform animation
-				$slides.prev.animate({
-					left : "0%"
-				}, oncomplete);
-				
-				$slides.active.animate({
-					left : "100%"
-				});
-				
+		//Makes slides moves
+		function _performAnimation(action){
+			
+			_blockSlider();
+			
+			switch( action ){
+				case 'prev':
+					
+					//Update index
+					_updateIndex('prev');
+					
+					$slides.prev.animate({
+						left : "0%"
+					}, settings.timeout);
+					
+					$slides.active.animate({
+						left : "100%"
+					}, settings.timeout);
+					
+					//_currentAnimation = new Timer(_onAnimationComplete, settings.timeout+1);
+					
+					break;
+				case 'next':
+					
+					//Update index
+					_updateIndex('next');
+					
+					$slides.active.animate({
+						left : "-100%"
+					}, settings.timeout);
+					
+					$slides.next.animate({
+						left : "0%"
+					}, settings.timeout);
+					
+					//_currentAnimation = new Timer(_onAnimationComplete, settings.timeout+1);
+					
+					break;
+				case 'restore':
+					
+					$slides.prev.animate({
+						left : "-100%"
+					}, settings.timeout/3);
+					
+					$slides.active.animate({
+						left : "0%"
+					}, settings.timeout/3);
+					
+					$slides.next.animate({
+						left : "100%"
+					}, settings.timeout/3);
+					console.log(_index)
+					/*
+					if( settings.auto ){
+						_timer.resume();
+					}*/
+					
+					break;
 			}
 			
-		};
+			_currentAnimation = new Timer(_onAnimationComplete, settings.timeout+1);
+			
+			//Switch class
+			_acivateSlide();
+			
+			
+		}
+		function _cancelAnimation(){
+			if( _currentAnimation!==undefined ){
+				_currentAnimation.cancel();
+			}
+			//Stop animation
+			$slides.active.add( $slides.prev ).add( $slides.next ).stop();
+			//Block slide
+			_unblockSlider();
+			//Switch class
+			_acivateSlide();
+		}
+		
+		//Next slide
+		//Triggered by internal events
+		function _next(){
+			if( _switching===false ){
+				
+				//Perform animation
+				_performAnimation("next");
+				
+			}
+		}
+		
+		//Previous slide
+		//Triggered by internal events
+		function _prev(){
+			if( _switching===false ){
+				
+				//Perform animation
+				_performAnimation("prev");
+				
+			}
+		}
 		
 		//Update prev, active and next slide index
 		function _updateIndex(action){
@@ -191,7 +234,7 @@
 		    this.pause = function(){
 		    	if( this.running ){
 		    		delay -= new Date().getTime() - startTime;
-		    		console.log(delay)
+		    		
 			    	this.cancel();
 			    	
 			    	this.onpause();
@@ -223,8 +266,7 @@
 		    this.add = function(extraDelay){
 		    	this.pause();
 		    	delay += extraDelay;
-		    	console.log("a")
-		    	//this.resume();
+		    	this.resume();
 		    };
 		    
 		    this.resume();
@@ -237,48 +279,28 @@
 				//Initialize timeout
 				_timer = new Timer(function(){
 					//Go to next slide
-					$slider.next();
+					_next();
 					//Reset this timeout
 					_timer.reset();
 					
 				}, settings.delay);
 				
 				//Force stop slide
-				_timer.onpause = function(){
-					//Stop animation
-					$slides.active.add( $slides.prev ).add( $slides.next ).stop();
-					//Block slide
-					_unblockSlider();
-					//Reset indexs
-					_updateIndex('prev');
-				}
+				_timer.onpause = _cancelAnimation;
 				
 				//Force continue slide
 				_timer.onresume = function(){
-					//Coninue animation with reseted values
-					$slider.next();
+					
+					_unblockSlider();
+					
+					//Coninue animation
+					_next();
 				}
 			}
 		}
 		//Initialize on start if settings.auto === true
 		if( settings.auto ){
 			_setTimer();
-		}
-		
-		//Play slide
-		$slider.play = function(){
-			if( _timer===null ){
-				_setTimer();
-			}else{
-				_timer.resume();
-			}
-		}
-		
-		//Stop auto slide
-		$slider.stop = function(){
-			if( _timer!==null ){
-				_timer.pause();
-			}
 		}
 		
 		//Slider touch controls
@@ -289,11 +311,12 @@
 			//Start drag
 			$slider.on('touchstart mousedown', function(e){
 				e.preventDefault();
-				if( _touch===null ){
+				if( _touch===null && _switching===false ){
 					
 					//Enable touch event
 					_touch = {
 						touching : true,
+						coords	 : [],
 						startX	 : null,
 						startY	 : null
 					};
@@ -309,10 +332,56 @@
 							break;
 					}
 					
+					_touch.coords[0] = {
+						x : _touch.startX,
+						y : _touch.startY
+					}
+					
 					//Disable auto slide
 					$slider.stop();
 					
 				}
+			});
+			
+			//User dragging
+			$slider.on('touchmove mousemove', function(e){
+				e.preventDefault();
+				if( _touch!==null ){
+					
+					switch( e.type ){
+						case 'mousemove':
+							_touch.coords.push({
+								x : e.clientX,
+								y : e.clientY
+							});
+							break;
+						case 'touchmove':
+							_touch.coords.push({
+								x : e.touches[0].clientX,
+								y : e.touches[0].clientY
+							});
+							break;
+					}
+					
+					//Gest displacement relative to the last known position
+					var distX = _touch.coords[_touch.coords.length-2].x - _touch.coords[_touch.coords.length-1].x,
+						distY = _touch.coords[_touch.coords.length-2].y - _touch.coords[_touch.coords.length-1].y;
+					
+					/*
+					console.log("startX: "+_touch.coords[0].x+", thisX: "+_touch.coords[_touch.coords.length-1].x);
+					console.log("displacementX: "+distX+", displacementY: "+distY);
+					console.log("startY: "+_touch.coords[0].y+", thisY: "+_touch.coords[_touch.coords.length-1].y);
+					console.log("-------------------------");
+					*/
+					
+					$slider.stop();
+					
+					$slides.active.add( $slides.prev ).add( $slides.next ).animate({
+						left : "-="+distX+"px"
+					}, 1);
+					
+				}
+				
 			});
 			
 			//End drag
@@ -320,12 +389,40 @@
 				e.preventDefault();
 				if( _touch!==null ){
 					
+					//Gest displacement relative to the last known position
+					var distX	= _touch.startX - _touch.coords[_touch.coords.length-1].x,
+						distY	= _touch.startY - _touch.coords[_touch.coords.length-1].y,
+						sliderW	= $slider.width();
+					
+					//If displacement is bigger than 1/4 of the slider width
+					if( Math.abs(distX) > sliderW/4 ){
+						//Perform animation
+						if( distX<0 ){
+							_performAnimation("prev");
+						}else{
+							_performAnimation("next");
+						}
+					}else{
+						//Restore position and continue sliding if auto
+						_performAnimation("restore");
+					}
+					
+					
+					
 					//Disable touch event
 					_touch = null;
 					
-					//Enable auto slide
-					if( settings.auto ){
-						$slider.play();
+				}
+			});
+			
+			$slider.on("mouseleave", function(e){
+				e.preventDefault();
+				if( _touch!==null ){
+					//Check if exist touch events
+					if( 'ontouchstart' in window || navigator.msMaxTouchPoints ){
+						$slider.trigger('touchend');
+					}else{
+						$slider.trigger('mouseup');
 					}
 					
 				}
@@ -340,6 +437,28 @@
 		}
 		$window.resize(_update);
 		_update();
+		
+		
+		//Public methods
+		//Go to next
+		$slider.next = _next;
+		//Go to prev
+		$slider.prev = _prev;
+		//Play slide
+		$slider.play = function(){
+			if( _timer===null ){
+				_setTimer();
+			}else{
+				_timer.resume();
+			}
+		}
+		
+		//Stop auto slide
+		$slider.stop = function(){
+			if( _timer!==null ){
+				_timer.pause();
+			}
+		}
 		
 		return $slider;
 	};
