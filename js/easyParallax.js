@@ -36,7 +36,7 @@
 				var height = $element.height();
 				var maxScroll = null;
 				
-				var scroll =  Math.round((top - pos - (windowHeight/2)) * settings.speedFactor + settings.offsetY);
+				var scroll =  Math.round( (top - pos - windowHeight) * settings.speedFactor + settings.offsetY);
 				
 				//Only check if totally avove the image if maxHeight===false
 				if( settings.maxHeight!==false ){
@@ -47,16 +47,9 @@
 					}
 					
 					//Above the image
-					if( scroll>0 )
+					if( scroll>0 ){
 						scroll=0;
-					
-					/*
-					console.log( settings.maxHeight )
-					console.log( height )
-					console.log( -(scroll + (scroll - settings.offsetY)) > settings.maxHeight )
-					console.log( scroll + (scroll - settings.offsetY) )
-					console.log( "--------" )
-					*/
+					}
 					
 					//Below the image
 					if( -(scroll + (scroll - settings.offsetY)) > settings.maxHeight ){
